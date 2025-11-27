@@ -1,0 +1,130 @@
+{
+    "name": "git-mcp",
+    "version": "1.0.0",
+    "description": "MCP tools that provide Git operations for AI agents, including reading repo state, generating diffs, applying patches, and creating commits.",
+    "tools": [
+        {
+            "name": "git.repo_info",
+            "description": "Get metadata about the current Git repository.",
+            "python": "mcp_git.tools.repo_info:repo_info",
+            "input_schema": {
+                "type": "object",
+                "properties": {}
+            }
+        },
+        {
+            "name": "git.status",
+            "description": "Return machine-readable Git status information.",
+            "python": "mcp_git.tools.status:git_status",
+            "input_schema": {
+                "type": "object",
+                "properties": {}
+            }
+        },
+        {
+            "name": "git.list_files",
+            "description": "Recursively list all files under the specified directory.",
+            "python": "mcp_git.tools.list_files:list_files",
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "path"
+                ]
+            }
+        },
+        {
+            "name": "git.read_file",
+            "description": "Read the content of a file safely.",
+            "python": "mcp_git.tools.read_file:read_file",
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "path"
+                ]
+            }
+        },
+        {
+            "name": "git.diff",
+            "description": "Return a unified diff between working tree, staged changes, or two commits.",
+            "python": "mcp_git.tools.diff:git_diff",
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "target": {
+                        "type": "string"
+                    },
+                    "commit_a": {
+                        "type": "string"
+                    },
+                    "commit_b": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        {
+            "name": "git.apply_patch",
+            "description": "Apply a unified diff patch safely.",
+            "python": "mcp_git.tools.apply_patch:apply_patch",
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "patch": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "patch"
+                ]
+            }
+        },
+        {
+            "name": "git.create_branch",
+            "description": "Create a new branch and optionally check it out.",
+            "python": "mcp_git.tools.create_branch:create_branch",
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "checkout": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "name"
+                ]
+            }
+        },
+        {
+            "name": "git.commit",
+            "description": "Stage changes and create a commit with the given message.",
+            "python": "mcp_git.tools.commit:create_commit",
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "add_all": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    ]
+}
