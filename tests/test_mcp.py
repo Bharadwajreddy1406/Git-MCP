@@ -5,5 +5,5 @@ from mcp_git.tools.commit import create_commit
 
 print(git_status())
 print(git_diff())
-print(create_commit(message="Test commit from mcp_git tools", add_all=True))
+# print(create_commit(message="Test commit from mcp_git tools", add_all=True))
 
