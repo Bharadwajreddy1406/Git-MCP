@@ -1,5 +1,6 @@
-from mcp_git.executor import safe_list_dir
+from mcp_git.executor import GitExecutor
 
 
 def list_files(path: str = ".") -> dict:
-    return safe_list_dir(path)
+    executor = GitExecutor.instance()
+    return executor.list_dir(path)

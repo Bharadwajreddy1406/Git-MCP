@@ -1,18 +1,17 @@
-from mcp_git.executor import run_git
+from mcp_git.executor import GitExecutor
 
 
 def create_commit(message: str, add_all: bool = False) -> dict:
+    executor = GitExecutor.instance()
     if add_all:
-        stage = run_git(["add", "-A"])
-        if not stage["ok"]:
+        stage = executor.git(["add", "-A"], allow_destructive=True)
+        if not stage.get("ok"):
             return stage
 
-    commit = run_git(["commit", "-m", message])
-    if not commit["ok"]:
+    commit = executor.git(["commit", "-m", message], allow_destructive=True)
+    if not commit.get("ok"):
         return commit
 
-    # return commit hash
-    last_hash = run_git(["rev-parse", "HEAD"])
+    last_hash = executor.git(["rev-parse", "HEAD"])
     commit["commit_hash"] = last_hash.get("stdout")
-
     return commit

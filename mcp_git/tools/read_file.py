@@ -1,5 +1,6 @@
-from mcp_git.executor import safe_read_file
+from mcp_git.executor import GitExecutor
 
 
 def read_file(path: str) -> dict:
-    return safe_read_file(path)
+    executor = GitExecutor.instance()
+    return executor.read_file(path)

@@ -103,7 +103,8 @@
                     }
                 },
                 "required": [
-                    "name"
+                    "name",
+                    "checkout"
                 ]
             }
         },
@@ -123,6 +124,22 @@
                 },
                 "required": [
                     "message"
+                ]
+            }
+        },
+        {
+            "name": "git.switch_branch",
+            "description": "Switch to the specified branch.",
+            "python": "mcp_git.tools.switch_branch:switch_branch",
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "name"
                 ]
             }
         }

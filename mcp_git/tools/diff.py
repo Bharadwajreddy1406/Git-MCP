@@ -1,17 +1,11 @@
-from mcp_git.executor import run_git
+from mcp_git.executor import GitExecutor
+from mcp_git.enums import RepoArea
 
 
-def git_diff(target: str = "working", commit_a: str = None, commit_b: str = None) -> dict:
-    """
-    target="working" → working tree diff
-    target="staged" → staged diff
-    commit_a + commit_b → commit-to-commit diff
-    """
-
+def git_diff(target: str = RepoArea.WORKING.value, commit_a: str = None, commit_b: str = None) -> dict:
+    executor = GitExecutor.instance()
     if commit_a and commit_b:
-        return run_git(["diff", commit_a, commit_b])
-
-    if target == "staged":
-        return run_git(["diff", "--staged"])
-
-    return run_git(["diff"])
+        return executor.git(["diff", commit_a, commit_b])
+    if target == RepoArea.STAGED.value:
+        return executor.git(["diff", "--staged"])
+    return executor.git(["diff"])
