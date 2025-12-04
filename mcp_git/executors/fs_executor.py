@@ -12,6 +12,7 @@ class FsExecutor:
     _initialized = False
     
     def __new__(cls, *args, **kwargs):
+        
         with cls._lock:
             if cls._instance is None:
                 cls._instance = super().__new__(cls)
@@ -68,6 +69,4 @@ class FsExecutor:
             return {"ok": True, "message": f"Directory '{p}' created successfully."}
         except Exception as e:
             return {"ok": False, "error": str(e)}
-    
-    
-    
+        
