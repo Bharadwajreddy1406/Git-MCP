@@ -1,8 +1,9 @@
+from __future__ import annotations
 import subprocess
 from pathlib import Path
 from mcp_git.config import load_config
 import threading
-import os
+
 
 
 class GitExecutor:
@@ -27,7 +28,7 @@ class GitExecutor:
         self._initialized = True
 
     @staticmethod
-    def instance() -> "GitExecutor":
+    def instance() -> GitExecutor:
         return GitExecutor()
 
     def git(self, args: list[str], allow_destructive=False) -> dict:

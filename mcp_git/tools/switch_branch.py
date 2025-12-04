@@ -1,5 +1,5 @@
 from mcp_git.utils import branch_exists
-from mcp_git.executor import GitExecutor
+from mcp_git.executors.git_executor import GitExecutor
 
 
 def switch_branch(name: str) -> dict:

@@ -1,5 +1,5 @@
 import subprocess
-from mcp_git.executor import GitExecutor
+from mcp_git.executors.git_executor import GitExecutor
 
 
 def apply_patch(patch: str) -> dict:

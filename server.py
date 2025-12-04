@@ -3,10 +3,12 @@ from mcp_git.tools.repo_info import repo_info
 from mcp_git.tools.status import git_status
 from mcp_git.tools.list_files import list_files
 from mcp_git.tools.read_file import read_file
+from mcp_git.tools.switch_branch import switch_branch
 from mcp_git.tools.diff import git_diff
 from mcp_git.tools.apply_patch import apply_patch
 from mcp_git.tools.create_branch import create_branch
 from mcp_git.tools.commit import create_commit
+from mcp_git.tools.read_folder_structure import read_folder_structure
 from mcp_git.enums import MCPVersion, RepoArea
 
 import os
@@ -66,8 +68,11 @@ def git_commit(message: str, add_all: bool = False) -> dict:
 
 @mcp.tool()
 def git_switch_branch(name: str) -> dict:
-    from mcp_git.tools.switch_branch import switch_branch
     return switch_branch(name)
+
+@mcp.tool()
+def folder_structure_reader(base_path: str = None, skip_gitignore: bool = True) -> dict:
+    return read_folder_structure(base_path, skip_gitignore)
 
 # Run the MCP Server
 if __name__ == "__main__":

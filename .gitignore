@@ -23,3 +23,5 @@ build/
 *.pytest_cache/
 *.tox/
 *.coverage.*
+.ipynb_checkpoints/
+.mcp_git.log

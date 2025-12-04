@@ -1,4 +1,4 @@
-from mcp_git.executor import GitExecutor
+from mcp_git.executors.git_executor import GitExecutor
 from mcp_git.enums import RepoArea
 
 

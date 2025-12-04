@@ -1,4 +1,4 @@
-from mcp_git.executor import GitExecutor
+from mcp_git.executors.git_executor import GitExecutor
 
 
 def create_commit(message: str, add_all: bool = False) -> dict:

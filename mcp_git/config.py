@@ -15,6 +15,13 @@ class GitMCPConfig:
         self.max_changed_files = int(os.getenv("GIT_MCP_MAX_CHANGED_FILES", 50))
         self.enable_logging = os.getenv("GIT_MCP_LOGGING", "true").lower() == "true"
         self.log_path = Path(os.getenv("GIT_MCP_LOG_PATH", "./mcp_git.log"))
+        self._frozen = True    # this is to make the config immutable
+
+
+    def __setattr__(self, name, value):
+        if hasattr(self, "_frozen") and self._frozen:
+            raise AttributeError(f"Config is immutable. Cannot modify '{name}'.")
+        super().__setattr__(name, value)
 
 
 _config_instance: GitMCPConfig | None = None
@@ -25,3 +32,8 @@ def load_config() -> GitMCPConfig:
     if _config_instance is None:
         _config_instance = GitMCPConfig()
     return _config_instance
+
+
+def reset_config():
+    global _config_instance
+    _config_instance = None
