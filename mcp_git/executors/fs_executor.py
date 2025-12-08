@@ -12,19 +12,20 @@ class FsExecutor:
     _initialized = False
     
     def __new__(cls, *args, **kwargs):
-        
-        with cls._lock:
-            if cls._instance is None:
-                cls._instance = super().__new__(cls)
-                cls._initialized = True
+        if not cls._instance:
+            with cls._lock:
+                if not cls._instance:
+                    cls._instance = super().__new__(cls)
         return cls._instance
     
     def __init__(self):
-        # ensure __init__ runs only once
-        if getattr(self, "_initialized", False):
+        if self._initialized:
             return
-        self.config = load_config()
-        self._initialized = True
+        with self._lock:
+            if self._initialized:
+                return
+            self.config = load_config()
+            self._initialized = True
         
     @staticmethod
     def instance() -> FsExecutor:
@@ -40,15 +41,41 @@ class FsExecutor:
     def know_os(self) -> str:
         return os.name
 
-    def list_dir(self, path: str = ".") -> dict:
+    def list_dir(self, path: str = ".", use_gitignore: bool = True) -> dict:
         p = self._common_path_preprocessing(path)
         try:
             if not p.exists() or not p.is_dir():
                 return {"ok": False, "error": f"Path '{p}' does not exist or is not a directory."}
-            items = [item.name for item in p.iterdir()]
-            return {"ok": True, "items": items}
+
+            files = []
+            
+            gitignore_patterns = []
+            if use_gitignore:
+                gitignore_path = Path(self.config.repo_root) / ".gitignore" if self.config.repo_root else Path(".gitignore")
+                if gitignore_path.exists():
+                    with gitignore_path.open("r", encoding="utf-8") as f:
+                        gitignore_patterns = [line.strip() for line in f if line.strip() and not line.startswith("#")]
+
+            for root, _, filenames in os.walk(p):
+                for filename in filenames:
+                    file_path = Path(root) / filename
+                    
+                    # Gitignore check
+                    if use_gitignore and self._is_ignored(file_path, gitignore_patterns):
+                        continue
+                        
+                    files.append(str(file_path.relative_to(p)))
+
+            return {"ok": True, "files": files}
         except Exception as e:
             return {"ok": False, "error": str(e)}
+
+    def _is_ignored(self, path: Path, patterns: list[str]) -> bool:
+        import fnmatch
+        for pattern in patterns:
+            if fnmatch.fnmatch(path.name, pattern) or any(fnmatch.fnmatch(part, pattern) for part in path.parts):
+                return True
+        return False
         
     def read_file(self, path: str) -> dict:
         p = self._common_path_preprocessing(path)
@@ -70,3 +97,37 @@ class FsExecutor:
         except Exception as e:
             return {"ok": False, "error": str(e)}
         
+    def change_directory(self,path : str) -> dict:
+        p = self._common_path_preprocessing(path)
+        try:
+            if not p.exists() or not p.is_dir():
+                return {"ok": False, "error": f"Path '{p}' does not exist or is not a directory."}
+            os.chdir(p)
+            return {"ok": True, "message": f"Changed current directory to '{p}'."}
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+        
+    def tree_view(self, path : str = ".", use_gitignore = False) -> dict:
+        p = self._common_path_preprocessing(path)
+        try:
+            if not p.exists() or not p.is_dir():
+                return {"ok": False, "error": f"Path '{p}' does not exist or is not a directory."}
+            if use_gitignore:
+                gitignore_path = p / ".gitignore"
+                if gitignore_path.exists():
+                    with gitignore_path.open("r", encoding="utf-8") as f:
+                        gitignore_patterns = [line.strip() for line in f if line.strip() and not line.startswith("#")]
+                    gitignore_args = []
+                    for pattern in gitignore_patterns:
+                        gitignore_args.extend(["-I", pattern])
+                    result = terminal.run(["tree", str(p), *gitignore_args], capture_output=True, text=True)
+                else:
+                    result = terminal.run(["tree", str(p)], capture_output=True, text=True)
+            else:
+                result = terminal.run(["tree", str(p)], capture_output=True, text=True)
+                
+            if result.returncode != 0:
+                return {"ok": False, "error": result.stderr}
+            return {"ok": True, "tree": result.stdout}
+        except Exception as e:
+            return {"ok": False, "error": str(e)}

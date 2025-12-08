@@ -60,15 +60,33 @@ class GitExecutor:
                 ["git"] + args,
                 capture_output=True,
                 text=True,
-                check=True,
+                check=False,  # Return result, do not raise exception
                 cwd=cwd
             )
-            return {"ok": True, "stdout": result.stdout.strip()}
-        except subprocess.CalledProcessError as e:
+            
+            ok = result.returncode == 0
+            stdout = result.stdout.strip() if result.stdout else ""
+            stderr = result.stderr.strip() if result.stderr else ""
+            
+            return {
+                "ok": ok,
+                "stdout": stdout,
+                "stderr": stderr,
+                "error": stderr if not ok else None,
+            }
+        except FileNotFoundError:
             return {
                 "ok": False,
-                "error": e.stderr.strip() if e.stderr else "",
-                "stdout": e.stdout.strip() if e.stdout else ""
+                "stdout": "",
+                "stderr": "git command not found. Please ensure Git is installed and in your PATH.",
+                "error": "git command not found. Please ensure Git is installed and in your PATH.",
+            }
+        except Exception as e:
+            return {
+                "ok": False,
+                "stdout": "",
+                "stderr": str(e),
+                "error": str(e),
             }
 
     def _on_protected_branch(self, cwd: str | None = None) -> bool:
@@ -76,12 +94,10 @@ class GitExecutor:
         return branch in self.config.protected_branches
 
     def _is_destructive(self, args: list[str]) -> bool:
-        destructive_subcommands = {"reset", "rebase", "push", "checkout", "branch", "apply"}
+        destructive_subcommands = {"reset", "rebase", "push", "checkout", "apply"}
         if not args:
             return False
         sub = args[0]
-        if sub == "branch" and any(a in {"-D", "-d"} for a in args[1:]):
-            return True
         if sub == "push" and any(a in {"--force", "-f"} for a in args[1:]):
             return True
         return sub in destructive_subcommands
